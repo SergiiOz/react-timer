@@ -5,22 +5,22 @@ import {
   decrSec,
   incrMin,
   decrMin,
+  resetTime,
   isRunningOn,
   isRunningOff,
 } from '../actions/actionCreators';
 
 const Timer = (props) => {
-  console.log(props);
-
+  //set function setInterval
   const [intervalId, setIntervalId] = useState(null);
 
   //START TIMER
   const onStartTimer = () => {
-    let startTimer = setInterval(() => {
+    let timerID = setInterval(() => {
       props.onDecrSec();
     }, 1000);
 
-    setIntervalId(startTimer);
+    setIntervalId(timerID);
     //change isRunning = true
     props.isRunOn();
   };
@@ -33,29 +33,57 @@ const Timer = (props) => {
     props.isRunOff();
   };
 
-  const pad = (time) => {
+  //convert in minutes and second from get seconds
+  const onGetMinutesAndSeconds = (time) => {
+    const getSeconds = time % 60;
+    const getMinutes = Math.floor(time / 60);
+    return { getMinutes, getSeconds };
+  };
+
+  const onFormatTime = (time) => {
     return time < 10 ? `0${time}` : `${time}`;
   };
+
+  //stop timer when second left 0
+  if (props.seconds === 0 && props.isRunning === true) {
+    clearInterval(intervalId);
+    //******************************/
+    //I will need to add: isRunning Off
+    //****************************/
+  }
+
+  const { getSeconds, getMinutes } = onGetMinutesAndSeconds(props.seconds);
 
   return (
     <div>
       <div>
         {/* show time */}
-        <span>{pad(props.minutes)}</span> : <span>{pad(props.seconds)}</span>
+        <span>{onFormatTime(getMinutes)}</span> :{' '}
+        <span>{onFormatTime(getSeconds)}</span>
       </div>
 
-      {/* set time */}
+      {/* SET TIME*/}
+      {/* set minutes */}
       <div>
-        <button onClick={props.onIncrSec}>IncrSeconds</button>
-        <button onClick={props.onDecrSec}>DecrSeconds</button>
-        <button onClick={props.onIncrMin}>IncrMinures</button>
-        <button onClick={props.onDecrMin}>DecrMinutes</button>
+        <button onClick={props.onIncrMin}>Incr Minutes</button>
+        <button onClick={props.onDecrMin}>Decr Minutes</button>
       </div>
+
+      {/* set seconds */}
+      <div>
+        <button onClick={props.onIncrSec}>Incr Seconds</button>
+        <button onClick={props.onDecrSec}>Decr Seconds</button>
+      </div>
+
+      {/* run, stop, reset timer */}
       <div>
         <button disabled={props.isRunning === true} onClick={onStartTimer}>
           Start
         </button>
-        <button onClick={onStopTimer}>Stop</button>
+        <button disabled={props.isRunning === false} onClick={onStopTimer}>
+          Stop
+        </button>
+        <button onClick={props.onResetTime}>RESET</button>
       </div>
     </div>
   );
@@ -65,7 +93,6 @@ const Timer = (props) => {
 const mapStateToProps = (state) => {
   return {
     seconds: state.timer.seconds,
-    minutes: state.timer.minutes,
     isRunning: state.timer.isRunning,
   };
 };
@@ -77,6 +104,7 @@ const mapDispatchToProps = (dispatch) => {
     onDecrSec: () => dispatch(decrSec()),
     onIncrMin: () => dispatch(incrMin()),
     onDecrMin: () => dispatch(decrMin()),
+    onResetTime: () => dispatch(resetTime()),
     isRunOn: () => dispatch(isRunningOn()),
     isRunOff: () => dispatch(isRunningOff()),
   };

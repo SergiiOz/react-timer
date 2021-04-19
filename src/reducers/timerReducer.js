@@ -3,13 +3,13 @@ import {
   DECREMENT_SECONDS,
   INCREMENT_MINUTES,
   DECREMENT_MINUTES,
+  RESET_TIME,
   IS_RUNNING_ON,
   IS_RUNNING_OFF,
 } from '../actions/actionTypes';
 
 const initialState = {
   seconds: 0,
-  minutes: 0,
   isRunning: false,
 };
 
@@ -23,10 +23,10 @@ const timerReducer = (state = initialState, action) => {
       return { ...state, seconds: state.seconds - 1 };
 
     case INCREMENT_MINUTES:
-      return { ...state, minutes: state.minutes + 1 };
+      return { ...state, seconds: state.seconds + 60 };
 
     case DECREMENT_MINUTES:
-      return { ...state, minutes: state.minutes - 1 };
+      return { ...state, seconds: state.seconds - 60 };
 
     //change isRunning
     case IS_RUNNING_ON:
@@ -35,6 +35,9 @@ const timerReducer = (state = initialState, action) => {
     case IS_RUNNING_OFF:
       return { ...state, isRunning: false };
 
+    //reset
+    case RESET_TIME:
+      return { ...state, seconds: 0, isRunning: false };
     default:
       return state;
   }
