@@ -9,6 +9,7 @@ import {
   isRunningOn,
   isRunningOff,
 } from '../actions/actionCreators';
+import ChartRadial from './ChartRadial';
 
 const Timer = (props) => {
   //set function setInterval
@@ -56,8 +57,21 @@ const Timer = (props) => {
 
   return (
     <div>
+      {/* display circle diagram */}
+      <div className="charts">
+        <ChartRadial
+          sizeCircle={getMinutes * 3}
+          className="minutes"
+          fillColor="blue"
+        />
+        <ChartRadial
+          sizeCircle={getSeconds}
+          className="seconds"
+          fillColor="green"
+        />
+      </div>
       <div>
-        {/* show time */}
+        {/* display time */}
         <span>{onFormatTime(getMinutes)}</span> :{' '}
         <span>{onFormatTime(getSeconds)}</span>
       </div>
