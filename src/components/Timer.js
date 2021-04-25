@@ -11,6 +11,7 @@ import {
 } from '../actions/actionCreators';
 import ChartRadial from './ChartRadial';
 import ChartRadial2 from './ChartRadial2';
+import CircularBar from './CircularBar';
 
 const Timer = (props) => {
   //set function setInterval
@@ -72,6 +73,8 @@ const Timer = (props) => {
         />
 
         <ChartRadial2 sizeCircle={getSeconds} />
+        <CircularBar value={getMinutes} nameValue="minutes" />
+        <CircularBar value={getSeconds} nameValue="seconds" />
       </div>
       <div>
         {/* display time */}
