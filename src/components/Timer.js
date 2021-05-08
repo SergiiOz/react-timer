@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { connect } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   incrSec,
   decrSec,
@@ -9,31 +9,37 @@ import {
   isRunningOn,
   isRunningOff,
 } from '../actions/actionCreators';
-import ChartRadial from './ChartRadial';
-import ChartRadial2 from './ChartRadial2';
+// import ChartRadial from './ChartRadial';
+// import ChartRadial2 from './ChartRadial2';
 import CircularBar from './CircularBar';
+import SetTime from './SetTime';
 
-const Timer = (props) => {
+const Timer = () => {
   //set function setInterval
   const [intervalId, setIntervalId] = useState(null);
+  //change mapStateToProps
+  const isRunning = useSelector((state) => state.timer.isRunning);
+  const seconds = useSelector((state) => state.timer.seconds);
+  //change mapDispatchToProps to useDispatch()
+  const dispatch = useDispatch();
 
   //START TIMER
   const onStartTimer = () => {
     let timerID = setInterval(() => {
-      props.onDecrSec();
+      dispatch(decrSec());
     }, 1000);
 
     setIntervalId(timerID);
-    //change isRunning = true
-    props.isRunOn();
+    //change isRunning to true
+    dispatch(isRunningOn());
   };
 
   //STOP TIMER
   const onStopTimer = () => {
     clearInterval(intervalId);
     setIntervalId(null);
-    //change isRunning = false
-    props.isRunOff();
+    //change isRunning to false
+    dispatch(isRunningOff());
   };
 
   //convert in minutes and second from get seconds
@@ -43,25 +49,21 @@ const Timer = (props) => {
     return { getMinutes, getSeconds };
   };
 
-  const onFormatTime = (time) => {
-    return time < 10 ? `0${time}` : `${time}`;
-  };
-
   //stop timer when second left 0
-  if (props.seconds === 0 && props.isRunning === true) {
+  if (seconds === 0 && isRunning === true) {
     clearInterval(intervalId);
     //******************************/
     //I will need to add: isRunning Off
     //****************************/
   }
 
-  const { getSeconds, getMinutes } = onGetMinutesAndSeconds(props.seconds);
+  const { getSeconds, getMinutes } = onGetMinutesAndSeconds(seconds);
 
   return (
     <div>
       {/* display circle diagram */}
       <div className="charts">
-        <ChartRadial
+        {/* <ChartRadial
           sizeCircle={getMinutes * 3}
           className="minutes"
           fillColor="blue"
@@ -72,62 +74,40 @@ const Timer = (props) => {
           fillColor="green"
         />
 
-        <ChartRadial2 sizeCircle={getSeconds} />
+        <ChartRadial2 sizeCircle={getSeconds} /> */}
+
         <CircularBar value={getMinutes} nameValue="minutes" />
         <CircularBar value={getSeconds} nameValue="seconds" />
       </div>
-      <div>
-        {/* display time */}
-        <span>{onFormatTime(getMinutes)}</span> :{' '}
-        <span>{onFormatTime(getSeconds)}</span>
-      </div>
 
-      {/* SET TIME*/}
+      {/* BUTTONS SET TIME*/}
       {/* set minutes */}
-      <div>
-        <button onClick={props.onIncrMin}>Incr Minutes</button>
-        <button onClick={props.onDecrMin}>Decr Minutes</button>
-      </div>
-
+      <SetTime
+        nameValue="minutes"
+        value={getMinutes}
+        increment={() => dispatch(incrMin())}
+        decrement={() => dispatch(decrMin())}
+      />
       {/* set seconds */}
-      <div>
-        <button onClick={props.onIncrSec}>Incr Seconds</button>
-        <button onClick={props.onDecrSec}>Decr Seconds</button>
-      </div>
+      <SetTime
+        nameValue="seconds"
+        value={getSeconds}
+        increment={() => dispatch(incrSec())}
+        decrement={() => dispatch(decrSec())}
+      />
 
       {/* run, stop, reset timer */}
       <div>
-        <button disabled={props.isRunning === true} onClick={onStartTimer}>
+        <button disabled={isRunning === true} onClick={onStartTimer}>
           Start
         </button>
-        <button disabled={props.isRunning === false} onClick={onStopTimer}>
+        <button disabled={isRunning === false} onClick={onStopTimer}>
           Stop
         </button>
-        <button onClick={props.onResetTime}>RESET</button>
+        <button onClick={() => dispatch(resetTime())}>RESET</button>
       </div>
     </div>
   );
 };
 
-//Map STATE
-const mapStateToProps = (state) => {
-  return {
-    seconds: state.timer.seconds,
-    isRunning: state.timer.isRunning,
-  };
-};
-
-//Map DISPATCH
-const mapDispatchToProps = (dispatch) => {
-  return {
-    onIncrSec: () => dispatch(incrSec()),
-    onDecrSec: () => dispatch(decrSec()),
-    onIncrMin: () => dispatch(incrMin()),
-    onDecrMin: () => dispatch(decrMin()),
-    onResetTime: () => dispatch(resetTime()),
-    isRunOn: () => dispatch(isRunningOn()),
-    isRunOff: () => dispatch(isRunningOff()),
-  };
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(Timer);
+export default Timer;
