@@ -17,10 +17,10 @@ import SetTime from './SetTime';
 const Timer = () => {
   //set function setInterval
   const [intervalId, setIntervalId] = useState(null);
-  //change mapStateToProps
+  //replaced mapStateToProps to useSelector()
   const isRunning = useSelector((state) => state.timer.isRunning);
   const seconds = useSelector((state) => state.timer.seconds);
-  //change mapDispatchToProps to useDispatch()
+  //replaced mapDispatchToProps to useDispatch()
   const dispatch = useDispatch();
 
   //START TIMER
@@ -52,9 +52,8 @@ const Timer = () => {
   //stop timer when second left 0
   if (seconds === 0 && isRunning === true) {
     clearInterval(intervalId);
-    //******************************/
-    //I will need to add: isRunning Off
-    //****************************/
+    //change status isRunning to false
+    dispatch(isRunningOff());
   }
 
   const { getSeconds, getMinutes } = onGetMinutesAndSeconds(seconds);
@@ -86,14 +85,14 @@ const Timer = () => {
         nameValue="minutes"
         value={getMinutes}
         increment={() => dispatch(incrMin())}
-        decrement={() => dispatch(decrMin())}
+        decrement={getMinutes > 0 ? () => dispatch(decrMin()) : undefined}
       />
       {/* set seconds */}
       <SetTime
         nameValue="seconds"
         value={getSeconds}
         increment={() => dispatch(incrSec())}
-        decrement={() => dispatch(decrSec())}
+        decrement={getSeconds > 0 ? () => dispatch(decrSec()) : undefined}
       />
 
       {/* run, stop, reset timer */}
